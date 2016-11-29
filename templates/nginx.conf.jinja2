@@ -1,0 +1,63 @@
+pcre_jit on;
+error_log debug.log debug;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include mime.types;
+
+    upstream django {
+    # todo: template
+        server unix://{{ env['KORAM_TMP_FOLDER'] }}/koram.sock; # for a file socket
+    }
+
+    server {
+        listen {{ env['KORAM_NGINX_PORT'] }};
+
+        charset     utf-8;
+
+        # max upload size
+        client_max_body_size 75M;   # adjust to taste
+
+        # Django media
+        location /media  {
+            alias {{ env['KORAM_MEDIA_FOLDER'] }};  # your Django project's media files - amend as required
+            gzip            on;
+            # gzipping anything that contains sensitive data may be unsafe, see: http://breachattack.com/
+            gzip_types text/css image/png image/jpeg image/gif application/javascript text/javascript application/x-javascript text/xml text/plain;
+        }
+
+        location /assets {
+            # need to reconsider where static production files will be stored,
+            # and automated generation of the conf file
+            alias {{ env['KORAM_STATIC_FOLDER'] }}; # your Django project's static files - amend as required
+            gzip            on;
+            # gzipping anything that contains sensitive data may be unsafe, see: http://breachattack.com/
+            gzip_types text/css image/png image/jpeg image/gif application/javascript text/javascript application/x-javascript text/xml text/plain;
+        }
+
+        location @fallback {
+            uwsgi_pass  django;
+            include     {{ env['KORAM_APP_FOLDER'] }}/deployment/uwsgi_params; # the uwsgi_params file you installed
+        }
+
+        # same as @fallback. intentionally avoiding use of regex here.
+        location /admin {
+            uwsgi_pass  django;
+            include     {{ env['KORAM_APP_FOLDER'] }}/deployment/uwsgi_params; # the uwsgi_params file you installed
+        }
+
+        # Finally, send all non-media requests to the Django server.
+        location / {
+            # for now, the following is added directly through the nginx-redis module
+            # add_header Content-Type text/html;
+            set $redis_db   {{ env['KORAM_APP_REDIS_TEMPLATE_DB'] }};
+            set $redis_key  "$uri";
+            # set $redis_key  "$uri?$args";
+            redis_pass      127.0.0.1:6379;
+            error_page      404 502 504 = @fallback;
+        }
+    }
+}

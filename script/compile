@@ -1,0 +1,17 @@
+#!/bin/bash
+
+pushd "vendor"
+pushd "nginx-1.7.9"
+CFLAGS="-g -O0" ./configure \
+--with-debug \
+--prefix=/home/ken47s/dev/koram-nginx/build/nginx \
+--conf-path=conf/nginx.conf \
+--error-log-path=logs/error.log \
+--http-log-path=logs/access.log \
+--add-module=/home/ken47s/dev/koram-nginx/modules/ngx_http_redis-0.3.7_customized \
+--with-pcre-jit
+make
+make install
+popd
+popd
+ln -sf /home/ken47s/dev/koram-nginx/nginx.conf /home/ken47s/dev/koram-nginx/build/nginx/conf/nginx.conf

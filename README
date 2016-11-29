@@ -1,0 +1,3 @@
+Using http://wiki.nginx.org/HttpRedis, modified module so that content type is set to text/html.
+
+see TODO

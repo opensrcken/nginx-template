@@ -1,0 +1,17 @@
+#!/bin/bash
+
+pushd "vendor"
+pushd "nginx-{{ NGINX_VERSION }}"
+CFLAGS="-g -O0" ./configure \
+--with-debug \
+--prefix={{ KORAM_NGINX_FOLDER }}/build/nginx \
+--conf-path=conf/nginx.conf \
+--error-log-path=logs/error.log \
+--http-log-path=logs/access.log \
+{% for module in modules %}--add-module={{ KORAM_NGINX_FOLDER }}/modules/{{ module }} \{% endfor %}
+--with-pcre-jit
+make
+make install
+popd
+popd
+ln -sf {{ KORAM_NGINX_FOLDER }}/nginx.conf {{ KORAM_NGINX_FOLDER }}/build/nginx/conf/nginx.conf

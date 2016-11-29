@@ -1,0 +1,6 @@
+.idea
+.rspec
+build
+vendor
+Gemfile.lock
+*.rdb

@@ -1,0 +1,22 @@
+check commit msg.
+
+indicate that ngx_http_redis module has been customized
+
+redis connects should ideally be pooled. see:
+shared mem - http://www.evanmiller.org/nginx-modules-guide-advanced.html#shm
+redisConnect - https://www.airpair.com/nginx/extending-nginx-tutorial
+debug logging in the current redis module.
+
+test with upgraded nginx
+
+unless admin and non-static, assume gzip
+
+react to environment variable via templated conf generation
+
+add specs for testing content-type
+
+I still only possess a shallow understanding of this module, and everything is automatically being set to content-type: text/html, which isn't exactly perfect.
+
+remove compile --with-debug?
+
+- use curl + script to pull in unmodified nginx modules? (not needed now)
